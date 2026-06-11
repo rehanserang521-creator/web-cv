@@ -27,15 +27,17 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     });
 });
 
-// ===== Dark Fantasy Particle Background =====
+// ===== Cosmic Starfield Particle Background =====
 const canvas = document.createElement('canvas');
 canvas.id = 'particleCanvas';
 document.body.prepend(canvas);
 
 const ctx = canvas.getContext('2d');
 let particles = [];
+let shootingStars = [];
 let mouseX = 0;
 let mouseY = 0;
+let nebulaTime = 0;
 
 function resizeCanvas() {
     canvas.width = window.innerWidth;
@@ -55,7 +57,7 @@ document.addEventListener('mousemove', (e) => {
     mouseY = e.clientY + window.scrollY;
 });
 
-class Particle {
+class Star {
     constructor() {
         this.reset();
     }
@@ -63,48 +65,68 @@ class Particle {
     reset() {
         this.x = Math.random() * canvas.width;
         this.y = Math.random() * canvas.height;
-        this.size = Math.random() * 3 + 1;
-        this.speedX = (Math.random() - 0.5) * 1.2;
-        this.speedY = (Math.random() - 0.5) * 1.2;
-        this.opacity = Math.random() * 0.6 + 0.1;
+        this.size = Math.random() * 2.5 + 0.3;
+        this.speedX = (Math.random() - 0.5) * 0.3;
+        this.speedY = (Math.random() - 0.5) * 0.3;
+        this.baseOpacity = Math.random() * 0.7 + 0.2;
+        this.opacity = this.baseOpacity;
         this.pulse = Math.random() * Math.PI * 2;
-        this.pulseSpeed = Math.random() * 0.02 + 0.005;
-        // Red-dark hues: hsl 0-10, low saturation, dark
-        this.hue = Math.random() * 15 + 345; // 345-360 + 0-15 (deep reds)
-        this.sat = Math.random() * 30 + 10;  // 10-40%
-        this.light = Math.random() * 15 + 10; // 10-25%
-        this.connections = [];
+        this.pulseSpeed = Math.random() * 0.015 + 0.003;
+        
+        // Star colors: white, pale blue, pale purple, pale teal
+        const colorType = Math.random();
+        if (colorType < 0.5) {
+            // White star
+            this.hue = 0;
+            this.sat = 0;
+            this.light = Math.random() * 20 + 80; // 80-100%
+        } else if (colorType < 0.7) {
+            // Blue-white star
+            this.hue = Math.random() * 20 + 200; // 200-220
+            this.sat = Math.random() * 20 + 10;  // 10-30%
+            this.light = Math.random() * 15 + 75; // 75-90%
+        } else if (colorType < 0.85) {
+            // Purple star
+            this.hue = Math.random() * 20 + 260; // 260-280
+            this.sat = Math.random() * 30 + 20;  // 20-50%
+            this.light = Math.random() * 15 + 70; // 70-85%
+        } else {
+            // Teal/cyan star
+            this.hue = Math.random() * 20 + 170; // 170-190
+            this.sat = Math.random() * 30 + 20;  // 20-50%
+            this.light = Math.random() * 15 + 70; // 70-85%
+        }
     }
 
     update() {
         this.pulse += this.pulseSpeed;
         const pulseFactor = Math.sin(this.pulse) * 0.3 + 0.7;
-        this.currentSize = this.size * pulseFactor;
-        this.currentOpacity = this.opacity * (Math.sin(this.pulse * 1.5) * 0.3 + 0.7);
+        this.currentOpacity = this.opacity * pulseFactor;
+        this.currentSize = this.size * (Math.sin(this.pulse * 1.2) * 0.15 + 0.85);
 
+        // Very slow drift
         this.x += this.speedX;
         this.y += this.speedY;
 
-        // Wrap around edges
-        if (this.x < -10) this.x = canvas.width + 10;
-        if (this.x > canvas.width + 10) this.x = -10;
-        if (this.y < -10) this.y = canvas.height + 10;
-        if (this.y > canvas.height + 10) this.y = -10;
+        // Wrap around
+        if (this.x < -5) this.x = canvas.width + 5;
+        if (this.x > canvas.width + 5) this.x = -5;
+        if (this.y < -5) this.y = canvas.height + 5;
+        if (this.y > canvas.height + 5) this.y = -5;
 
-        // Mouse interaction - slight attraction/repulsion
+        // Mouse interaction - gentle attraction
         const dx = mouseX - this.x;
         const dy = mouseY - this.y;
         const dist = Math.sqrt(dx * dx + dy * dy);
-        if (dist < 200) {
-            const force = (200 - dist) / 200 * 0.2;
-            this.speedX += dx / dist * force * 0.1;
-            this.speedY += dy / dist * force * 0.1;
-            // Limit speed
-            const maxSpeed = 2.5;
+        if (dist < 180) {
+            const force = (180 - dist) / 180 * 0.15;
+            this.speedX += (dx / dist) * force * 0.05;
+            this.speedY += (dy / dist) * force * 0.05;
+            // Speed limit
             const spd = Math.sqrt(this.speedX * this.speedX + this.speedY * this.speedY);
-            if (spd > maxSpeed) {
-                this.speedX = (this.speedX / spd) * maxSpeed;
-                this.speedY = (this.speedY / spd) * maxSpeed;
+            if (spd > 1.5) {
+                this.speedX = (this.speedX / spd) * 1.5;
+                this.speedY = (this.speedY / spd) * 1.5;
             }
         }
     }
@@ -115,36 +137,170 @@ class Particle {
         ctx.fillStyle = `hsla(${this.hue}, ${this.sat}%, ${this.light}%, ${this.currentOpacity})`;
         ctx.fill();
 
-        // Glow effect
+        // Glow for brighter stars
+        if (this.size > 1.5) {
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, this.currentSize * 3, 0, Math.PI * 2);
+            ctx.fillStyle = `hsla(${this.hue}, ${this.sat}%, ${this.light}%, ${this.currentOpacity * 0.08})`;
+            ctx.fill();
+        }
+    }
+}
+
+class ShootingStar {
+    constructor() {
+        this.renew();
+    }
+
+    renew() {
+        this.active = false;
+        this.x = Math.random() * canvas.width;
+        this.y = Math.random() * canvas.height * 0.5;
+        this.length = Math.random() * 80 + 40;
+        this.speed = Math.random() * 8 + 4;
+        this.angle = Math.PI / 4 + (Math.random() - 0.5) * 0.3;
+        this.life = 0;
+        this.maxLife = Math.random() * 30 + 20;
+        this.opacity = 0;
+        this.wait = Math.random() * 200 + 100; // frames to wait before starting
+        this.waitCount = 0;
+    }
+
+    update() {
+        if (!this.active) {
+            this.waitCount++;
+            if (this.waitCount >= this.wait) {
+                this.active = true;
+                this.waitCount = 0;
+            }
+            return;
+        }
+
+        this.life++;
+        if (this.life > this.maxLife) {
+            this.renew();
+            return;
+        }
+
+        const progress = this.life / this.maxLife;
+        // Fade in then out
+        if (progress < 0.2) {
+            this.opacity = progress / 0.2;
+        } else {
+            this.opacity = 1 - (progress - 0.2) / 0.8;
+        }
+
+        this.x += Math.cos(this.angle) * this.speed;
+        this.y += Math.sin(this.angle) * this.speed;
+    }
+
+    draw() {
+        if (!this.active || this.opacity <= 0) return;
+
+        const endX = this.x - Math.cos(this.angle) * this.length;
+        const endY = this.y - Math.sin(this.angle) * this.length;
+
+        // Trail gradient
+        const gradient = ctx.createLinearGradient(this.x, this.y, endX, endY);
+        gradient.addColorStop(0, `hsla(0, 0%, 100%, ${this.opacity * 0.9})`);
+        gradient.addColorStop(0.3, `hsla(220, 60%, 80%, ${this.opacity * 0.4})`);
+        gradient.addColorStop(1, `hsla(260, 50%, 70%, 0)`);
+
         ctx.beginPath();
-        ctx.arc(this.x, this.y, this.currentSize * 2.5, 0, Math.PI * 2);
-        ctx.fillStyle = `hsla(${this.hue}, ${this.sat}%, ${this.light}%, ${this.currentOpacity * 0.15})`;
+        ctx.moveTo(this.x, this.y);
+        ctx.lineTo(endX, endY);
+        ctx.strokeStyle = gradient;
+        ctx.lineWidth = 2;
+        ctx.stroke();
+
+        // Head glow
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, 3, 0, Math.PI * 2);
+        ctx.fillStyle = `hsla(0, 0%, 100%, ${this.opacity * 0.8})`;
         ctx.fill();
     }
 }
 
-// Create particles based on screen area
-const particleCount = Math.min(Math.floor((canvas.width * canvas.height) / 8000), 150);
+// Nebula clouds - slow-moving colored patches
+class Nebula {
+    constructor() {
+        this.x = Math.random() * canvas.width;
+        this.y = Math.random() * canvas.height;
+        this.size = Math.random() * 300 + 150;
+        this.speedX = (Math.random() - 0.5) * 0.15;
+        this.speedY = (Math.random() - 0.5) * 0.15;
+        this.hue = Math.random() < 0.5 ? 
+            Math.random() * 40 + 240 : // blue-purple 240-280
+            Math.random() * 40 + 260;  // purple-violet 260-300
+        this.sat = Math.random() * 20 + 30;
+        this.light = Math.random() * 10 + 5;
+        this.opacity = Math.random() * 0.04 + 0.02;
+    }
 
-for (let i = 0; i < particleCount; i++) {
-    particles.push(new Particle());
+    update() {
+        this.x += this.speedX;
+        this.y += this.speedY;
+        if (this.x < -this.size) this.x = canvas.width + this.size;
+        if (this.x > canvas.width + this.size) this.x = -this.size;
+        if (this.y < -this.size) this.y = canvas.height + this.size;
+        if (this.y > canvas.height + this.size) this.y = -this.size;
+    }
+
+    draw() {
+        const gradient = ctx.createRadialGradient(
+            this.x, this.y, 0,
+            this.x, this.y, this.size
+        );
+        gradient.addColorStop(0, `hsla(${this.hue}, ${this.sat}%, ${this.light}%, ${this.opacity})`);
+        gradient.addColorStop(0.5, `hsla(${this.hue + 20}, ${this.sat}%, ${this.light}%, ${this.opacity * 0.5})`);
+        gradient.addColorStop(1, `hsla(${this.hue}, ${this.sat}%, ${this.light}%, 0)`);
+        
+        ctx.fillStyle = gradient;
+        ctx.fillRect(
+            this.x - this.size,
+            this.y - this.size,
+            this.size * 2,
+            this.size * 2
+        );
+    }
 }
 
-function drawConnections() {
-    // Draw lines between nearby particles
-    for (let i = 0; i < particles.length; i++) {
-        for (let j = i + 1; j < particles.length; j++) {
+// Create universe elements
+const starCount = Math.min(Math.floor((canvas.width * canvas.height) / 6000), 200);
+const nebulaCount = 5;
+const shootingStarCount = 3;
+
+for (let i = 0; i < starCount; i++) {
+    particles.push(new Star());
+}
+
+const nebulae = [];
+for (let i = 0; i < nebulaCount; i++) {
+    nebulae.push(new Nebula());
+}
+
+for (let i = 0; i < shootingStarCount; i++) {
+    shootingStars.push(new ShootingStar());
+    // Stagger initial wait times
+    shootingStars[i].wait = i * 150 + Math.random() * 100;
+}
+
+function drawConstellations() {
+    // Draw faint lines between nearby stars (constellation-like)
+    for (let i = 0; i < particles.length; i += 3) { // only check every 3rd star for performance
+        for (let j = i + 1; j < particles.length; j += 2) {
+            if (particles[i].size < 1.2 || particles[j].size < 1.2) continue;
             const dx = particles[i].x - particles[j].x;
             const dy = particles[i].y - particles[j].y;
             const dist = Math.sqrt(dx * dx + dy * dy);
-            const maxDist = 120;
+            const maxDist = 80;
             if (dist < maxDist) {
-                const opacity = (1 - dist / maxDist) * 0.25;
+                const opacity = (1 - dist / maxDist) * 0.06;
                 ctx.beginPath();
                 ctx.moveTo(particles[i].x, particles[i].y);
                 ctx.lineTo(particles[j].x, particles[j].y);
-                ctx.strokeStyle = `hsla(0, 30%, 30%, ${opacity})`;
-                ctx.lineWidth = 0.8;
+                ctx.strokeStyle = `hsla(260, 30%, 70%, ${opacity})`;
+                ctx.lineWidth = 0.5;
                 ctx.stroke();
             }
         }
@@ -154,26 +310,42 @@ function drawConnections() {
 function animateParticles() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     
+    // Draw deep space gradient
+    const spaceGrad = ctx.createRadialGradient(
+        canvas.width * 0.5, canvas.height * 0.4, 0,
+        canvas.width * 0.5, canvas.height * 0.4, canvas.width * 0.7
+    );
+    spaceGrad.addColorStop(0, '#080518');
+    spaceGrad.addColorStop(0.5, '#060412');
+    spaceGrad.addColorStop(1, '#030207');
+    ctx.fillStyle = spaceGrad;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // Draw nebulae
+    nebulae.forEach(n => {
+        n.update();
+        n.draw();
+    });
+
+    // Draw constellation lines
+    drawConstellations();
+
+    // Draw stars
     particles.forEach(p => {
         p.update();
         p.draw();
     });
 
-    drawConnections();
+    // Draw shooting stars
+    shootingStars.forEach(s => {
+        s.update();
+        s.draw();
+    });
+
     requestAnimationFrame(animateParticles);
 }
 
 animateParticles();
-
-// ===== Text Glitch Effect on Hover =====
-document.querySelectorAll('.glitch-text').forEach(el => {
-    el.addEventListener('mouseenter', () => {
-        el.classList.add('glitching');
-    });
-    el.addEventListener('mouseleave', () => {
-        el.classList.remove('glitching');
-    });
-});
 
 // ===== Intersection Observer for fade-in sections =====
 const observerOptions = {

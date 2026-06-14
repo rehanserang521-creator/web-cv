@@ -281,6 +281,25 @@ ul {
     100% { transform: translate(-30px, 30px) scale(1.1); }
 }
 
+/* ===== GLOWING TEXT EFFECT ===== */
+.glow-text {
+    animation: glowPulse 2.5s ease-in-out infinite alternate;
+    filter: drop-shadow(0 0 15px rgba(167, 139, 250, 0.3));
+}
+
+@keyframes glowPulse {
+    0% {
+        filter: drop-shadow(0 0 8px rgba(167, 139, 250, 0.2))
+                drop-shadow(0 0 20px rgba(99, 102, 241, 0.15))
+                drop-shadow(0 0 40px rgba(139, 92, 246, 0.05));
+    }
+    100% {
+        filter: drop-shadow(0 0 15px rgba(167, 139, 250, 0.5))
+                drop-shadow(0 0 40px rgba(99, 102, 241, 0.3))
+                drop-shadow(0 0 80px rgba(139, 92, 246, 0.15));
+    }
+}
+
 /* ===== BUTTONS ===== */
 .btn {
     display: inline-flex;

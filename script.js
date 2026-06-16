@@ -281,7 +281,7 @@ const galleryImages = [
     { src: 'assets/logo1.jpeg', alt: 'Logo Design 1 - Canva' },
     { src: 'assets/logo2.jpeg', alt: 'Logo Design 2 - Canva' },
     { src: 'assets/logo3.jpeg', alt: 'Logo Design 3 - Canva' },
-    { src: 'assets/logo4.jpeg', alt: 'Logo Design 4 - Canva' },
+    { src: 'assets/lemon-sereh.jpg', alt: 'Logo Lemon Sereh - Canva' },
     { src: 'assets/banner.jpeg', alt: 'Banner Design - Canva', isBanner: true }
 ];
 

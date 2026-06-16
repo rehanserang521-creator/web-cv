@@ -449,10 +449,6 @@ const galaxies=[];
 const galaxyCount=Math.floor(Math.random()*2)+1; // 1-2 galaxies
 for(let i=0;i<galaxyCount;i++) galaxies.push(new Galaxy());
 
-const blackHoles=[];
-const bhCount=1; // 1 black hole
-for(let i=0;i<bhCount;i++) blackHoles.push(new BlackHole());
-
 const constellations=[];
 const conCount=Math.floor(Math.random()*3)+3; // 3-5 constellations
 for(let i=0;i<conCount;i++) constellations.push(new Constellation());
@@ -492,12 +488,6 @@ function animate() {
     constellations.forEach(c=>{
         c.update();
         c.draw();
-    });
-    
-    // Black holes
-    blackHoles.forEach(bh=>{
-        bh.update();
-        bh.draw();
     });
     
     // Stars

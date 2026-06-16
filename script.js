@@ -276,30 +276,19 @@ document.querySelectorAll('.section').forEach(section=>{section.classList.add('f
 // ===== GALLERY - Lightbox =====
 const galleryGrid = document.getElementById('galleryGrid');
 
-// Example gallery images (Canva design placeholders)
+// Gallery images — banner di kanan, logo di sisanya
 const galleryImages = [
-    {
-        src: 'https://placehold.co/400x300/6366f1/ffffff?text=Logo+Design+1',
-        alt: 'Logo Design 1 - Canva'
-    },
-    {
-        src: 'https://placehold.co/400x300/a78bfa/ffffff?text=Banner+Design+1',
-        alt: 'Banner Design 1 - Canva'
-    },
-    {
-        src: 'https://placehold.co/400x300/8b5cf6/ffffff?text=Logo+Design+2',
-        alt: 'Logo Design 2 - Canva'
-    },
-    {
-        src: 'https://placehold.co/400x300/7c3aed/ffffff?text=Banner+Design+2',
-        alt: 'Banner Design 2 - Canva'
-    }
+    { src: 'assets/logo1.jpeg', alt: 'Logo Design 1 - Canva' },
+    { src: 'assets/logo2.jpeg', alt: 'Logo Design 2 - Canva' },
+    { src: 'assets/logo3.jpeg', alt: 'Logo Design 3 - Canva' },
+    { src: 'assets/logo4.jpeg', alt: 'Logo Design 4 - Canva' },
+    { src: 'assets/banner.jpeg', alt: 'Banner Design - Canva', isBanner: true }
 ];
 
 // Render gallery
 galleryImages.forEach(img => {
     const item = document.createElement('div');
-    item.className = 'gallery-item';
+    item.className = 'gallery-item' + (img.isBanner ? ' gallery-banner' : '');
     item.innerHTML = `<img src="${img.src}" alt="${img.alt}" loading="lazy">`;
     item.addEventListener('click', () => openLightbox(img.src, img.alt));
     galleryGrid.appendChild(item);

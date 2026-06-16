@@ -280,15 +280,15 @@ const galleryGrid = document.getElementById('galleryGrid');
 const galleryImages = [
     { src: 'assets/logo1.jpeg', alt: 'Logo Design 1 - Canva' },
     { src: 'assets/logo2.jpeg', alt: 'Logo Design 2 - Canva' },
-    { src: 'assets/logo3.jpeg', alt: 'Logo Design 3 - Canva' },
+    { src: 'assets/minuman-sehat.jpg', alt: 'Logo Minuman Sehat - Canva' },
     { src: 'assets/lemon-sereh.jpg', alt: 'Logo Lemon Sereh - Canva' },
-    { src: 'assets/banner.jpeg', alt: 'Banner Design - Canva', isBanner: true }
+    { src: 'assets/banner.jpeg', alt: 'Banner Design - Canva' }
 ];
 
 // Render gallery
 galleryImages.forEach(img => {
     const item = document.createElement('div');
-    item.className = 'gallery-item' + (img.isBanner ? ' gallery-banner' : '');
+    item.className = 'gallery-item';
     item.innerHTML = `<img src="${img.src}" alt="${img.alt}" loading="lazy">`;
     item.addEventListener('click', () => openLightbox(img.src, img.alt));
     galleryGrid.appendChild(item);

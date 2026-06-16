@@ -806,16 +806,6 @@ ul {
     transform: scale(1.05);
 }
 
-.gallery-banner {
-    grid-column: 2 / -1;
-    aspect-ratio: auto;
-}
-
-.gallery-banner img {
-    object-fit: contain;
-    max-height: 300px;
-}
-
 .gallery-note {
     text-align: center;
     font-size: 0.85rem;
